@@ -143,23 +143,39 @@
           var activeVersion = "v1.0";
 
           async function checkVersionAndLoad() {
+            var hasConsent = localStorage.getItem('_ac_consent');
+            var savedVersion = localStorage.getItem('_ac_banner_version');
+
             try {
               var vRes = await fetch('/api/consent/banner-version?domain=' + domain);
               if (vRes.ok) {
                 var vData = await vRes.json();
-                activeVersion = vData.version || 'v1.0';
-                var savedVersion = localStorage.getItem('_ac_banner_version') || '';
-                if (savedVersion && savedVersion !== activeVersion) {
-                  localStorage.removeItem('_ac_consent'); // Force re-prompt
+                var serverVersion = vData.version;
+                if (serverVersion) {
+                  activeVersion = serverVersion;
+                  if (hasConsent && savedVersion && savedVersion !== serverVersion) {
+                    // Version changed! Clear consent to force re-prompt
+                    localStorage.removeItem('_ac_consent');
+                    hasConsent = null;
+                  }
                 }
               }
-            } catch(e) {}
+            } catch(e) {
+              console.error("Error checking banner version:", e);
+            }
+
+            // If consent is still present and valid, don't show the banner
+            if (hasConsent) {
+              return;
+            }
 
             var lang = detectLang();
             try {
               var tRes = await fetch('/api/consent/i18n/banner/' + lang);
               if (tRes.ok) translationBundle = await tRes.json();
-            } catch(e) {}
+            } catch(e) {
+              console.error("Error fetching translations:", e);
+            }
 
             renderBanner(lang);
           }
