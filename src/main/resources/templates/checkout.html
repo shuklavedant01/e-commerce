@@ -91,12 +91,122 @@
                         </div>
                     </div>
 
+                    <!-- Consent Preferences section -->
+                    <div class="form-section mb-4">
+                        <h2><span class="step-num">3</span> Consent Preferences</h2>
+                        <hr/>
+                        
+                        <div class="form-group mb-3" style="flex-direction: row; align-items: flex-start; gap: 8px;">
+                            <input type="checkbox" id="consent-essential" checked disabled required style="margin-top: 4px;" />
+                            <label for="consent-essential" style="font-weight: 500; font-size: 0.875rem;">
+                                I consent to the collection of my PII details necessary to process my order and receive essential updates. (Required)
+                            </label>
+                        </div>
+
+                        <div class="form-group mb-3" style="flex-direction: row; align-items: flex-start; gap: 8px;">
+                            <input type="checkbox" id="consent-behaviour" checked style="margin-top: 4px;" />
+                            <label for="consent-behaviour" style="font-weight: 500; font-size: 0.875rem;">
+                                Allow Behaviour Analysis (BEHAVIOUR_ANALYSIS) for improving personalized suggestions. (Optional)
+                            </label>
+                        </div>
+                        
+                        <div class="form-group mb-3" style="flex-direction: row; align-items: flex-start; gap: 8px;">
+                            <input type="checkbox" id="consent-marketing" checked style="margin-top: 4px;" />
+                            <label for="consent-marketing" style="font-weight: 500; font-size: 0.875rem;">
+                                Allow Email Marketing (EMAIL_MARKETING) to receive special offers and product catalogs. (Optional)
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary btn-large w-100 mt-4">
+                    <button type="button" onclick="submitCheckoutFormWithConsent(event)" class="btn btn-primary btn-large w-100 mt-4">
                         <i class="fa-solid fa-lock"></i> Submit Payment & Order
                     </button>
                 </form>
             </div>
+
+            <script>
+            async function submitCheckoutFormWithConsent(event) {
+                const form = document.querySelector(".needs-validation");
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const email = document.getElementById("email").value;
+                const visitorId = localStorage.getItem("_ac_visitor_id") || "";
+                const domain = "techium-vyapaar.onrender.com";
+                const promises = [];
+
+                // 1. Necessary booking consent (Essential Updates)
+                promises.push(capturePurpose(
+                    "Essential Updates", 
+                    "PUR-20260625175043645369", 
+                    "STRICTLY_NECESSARY", 
+                    email, 
+                    visitorId, 
+                    domain
+                ));
+
+                // 2. Optional: Behaviour Analysis
+                if (document.getElementById("consent-behaviour").checked) {
+                    promises.push(capturePurpose(
+                        "BEHAVIOUR_ANALYSIS", 
+                        "PUR-20260714084638078113", 
+                        "ANALYTICS", 
+                        email, 
+                        visitorId, 
+                        domain
+                    ));
+                }
+
+                // 3. Optional: Email Marketing
+                if (document.getElementById("consent-marketing").checked) {
+                    promises.push(capturePurpose(
+                        "EMAIL_MARKETING", 
+                        "PUR-20260714083036506173", 
+                        "MARKETING", 
+                        email, 
+                        visitorId, 
+                        domain
+                    ));
+                }
+
+                try {
+                    // Submit captures in parallel for performance
+                    await Promise.all(promises);
+                } catch(err) {
+                    console.error("Failed to register some consents: ", err);
+                }
+
+                // Submit form normally
+                form.submit();
+            }
+
+            async function capturePurpose(purposeName, purposeId, category, email, visitorId, domain) {
+                const payload = {
+                    consent_method: "EXPLICIT",
+                    email: email,
+                    geo_jurisdiction: "IN",
+                    language: "en",
+                    legal_basis: "CONSENT",
+                    notice_version: domain + "-v1",
+                    purpose: purposeName,
+                    purpose_category: category,
+                    purpose_id: purposeId,
+                    visitor_id: visitorId
+                };
+
+                const res = await fetch("/api/consent/capture", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    throw new Error("Consent capture failed for " + purposeName);
+                }
+            }
+            </script>
 
             <!-- Right Side: Order Review -->
             <div class="checkout-review-panel">

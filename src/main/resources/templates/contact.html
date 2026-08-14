@@ -53,7 +53,14 @@
                             <textarea id="message" th:field="*{message}" rows="5" required class="form-control" placeholder="Write your message here..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">
+                        <div class="form-group mb-4" style="flex-direction: row; align-items: flex-start; gap: 8px;">
+                            <input type="checkbox" id="consent-contact" checked disabled required style="margin-top: 4px;" />
+                            <label for="consent-contact" style="font-weight: 500; font-size: 0.8125rem; color: var(--text-secondary);">
+                                I consent to the collection of my PII details necessary to process this inquiry and contact me regarding my request. (Required)
+                            </label>
+                        </div>
+
+                        <button type="button" onclick="submitContactFormWithConsent(event)" class="btn btn-primary w-100">
                             <i class="fa-solid fa-paper-plane"></i> Send Message
                         </button>
                     </form>
@@ -61,6 +68,49 @@
             </div>
         </div>
     </main>
+
+    <script>
+    async function submitContactFormWithConsent(event) {
+        const form = document.querySelector(".contact-form-panel form");
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const email = document.getElementById("email").value;
+        const visitorId = localStorage.getItem("_ac_visitor_id") || "";
+        const domain = "techium-vyapaar.onrender.com";
+
+        const payload = {
+            consent_method: "EXPLICIT",
+            email: email,
+            geo_jurisdiction: "IN",
+            language: "en",
+            legal_basis: "CONSENT",
+            notice_version: domain + "-v1",
+            purpose: "Contact / sales follow-up, /contact form",
+            purpose_category: "MARKETING",
+            purpose_id: "PUR-20260714083036506173",
+            visitor_id: visitorId
+        };
+
+        try {
+            const res = await fetch("/api/consent/capture", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                console.error("Consent capture failed");
+            }
+        } catch(err) {
+            console.error("Failed to register consent: ", err);
+        }
+
+        // Submit form
+        form.submit();
+    }
+    </script>
 
     <div th:replace="~{fragments/layout :: footer}"></div>
 </body>
