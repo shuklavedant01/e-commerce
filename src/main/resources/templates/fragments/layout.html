@@ -63,6 +63,179 @@
         <div class="footer-bottom">
             <p>&copy; 2026 SwiftShop. Pair-programmed with Antigravity AI.</p>
         </div>
+
+        <!-- Container where cookie banner will be injected -->
+        <div id="sb-cookie-banner"></div>
+
+        <script>
+        (function () {
+          var domain = "techium-vyapaar.onrender.com";
+
+          // Inject banner styling dynamically
+          var style = document.createElement('style');
+          style.textContent = `
+            #sb-cookie-banner {
+              position: fixed; bottom: 0; left: 0; right: 0;
+              background: #ffffff; box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+              z-index: 999999; font-family: 'Inter', system-ui, sans-serif;
+              transform: translateY(100%); transition: transform 0.4s ease;
+              border-top: 1px solid #e2e8f0; display: none;
+            }
+            #sb-cookie-banner.visible { transform: translateY(0); display: block; }
+            .sb-cookie-banner-inner { max-width: 1200px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+            @media (min-width: 768px) { .sb-cookie-banner-inner { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; } }
+            .sb-cookie-text { flex: 1; text-align: inherit; }
+            .sb-cookie-text h4 { margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+            .sb-cookie-text p { margin: 0; font-size: 14px; line-height: 1.5; color: #475569; }
+            .sb-cookie-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+            .sb-btn { padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+            .sb-btn--primary { background: #4f46e5; color: #ffffff; }
+            .sb-btn--primary:hover { background: #4338ca; }
+            .sb-btn--outline { border-color: #cbd5e1; background: transparent; color: #475569; }
+            .sb-btn--outline:hover { background: #f8fafc; border-color: #94a3b8; }
+          `;
+          document.head.appendChild(style);
+
+          // Generate UUID v4 for _ac_visitor_id
+          function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+              var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+              return v.toString(16);
+            });
+          }
+
+          // Check or generate visitor ID
+          var visitorId = localStorage.getItem('_ac_visitor_id');
+          if (!visitorId) {
+            visitorId = generateUUID();
+            localStorage.setItem('_ac_visitor_id', visitorId);
+          }
+
+          // Initialize GCM v2 Restrictive Defaults
+          if (typeof window.dataLayer === 'undefined') window.dataLayer = [];
+          function gtag() { window.dataLayer.push(arguments); }
+          gtag('consent', 'default', {
+            ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+            analytics_storage: 'denied', functionality_storage: 'denied',
+            personalization_storage: 'denied', security_storage: 'granted',
+            wait_for_update: 500
+          });
+
+          // Resolve browser language preferences (Schedule VIII)
+          function detectLang() {
+            var queryParam = new URLSearchParams(window.location.search).get("lang") || '';
+            var savedPreference = localStorage.getItem("_ac_lang") || '';
+            var supported = ["en", "as", "bn", "brx", "doi", "gu", "hi", "kn", "ks", "kok", "mai", "ml", "mni", "mr", "ne", "or", "pa", "sa", "sat", "sd", "ta", "te", "ur"];
+
+            if (queryParam) return queryParam;
+            if (savedPreference) return savedPreference;
+
+            if (navigator.languages) {
+              for (var i = 0; i < navigator.languages.length; i++) {
+                var l = navigator.languages[i].split("-")[0].toLowerCase();
+                if (supported.includes(l)) return l;
+              }
+            }
+            return (navigator.language || "en").split("-")[0].toLowerCase();
+          }
+
+          var translationBundle = { strings: {} };
+          var activeVersion = "v1.0";
+
+          async function checkVersionAndLoad() {
+            try {
+              var vRes = await fetch('/api/consent/banner-version?domain=' + domain);
+              if (vRes.ok) {
+                var vData = await vRes.json();
+                activeVersion = vData.version || 'v1.0';
+                var savedVersion = localStorage.getItem('_ac_banner_version') || '';
+                if (savedVersion && savedVersion !== activeVersion) {
+                  localStorage.removeItem('_ac_consent'); // Force re-prompt
+                }
+              }
+            } catch(e) {}
+
+            var lang = detectLang();
+            try {
+              var tRes = await fetch('/api/consent/i18n/banner/' + lang);
+              if (tRes.ok) translationBundle = await tRes.json();
+            } catch(e) {}
+
+            renderBanner(lang);
+          }
+
+          function t(key, fallback) {
+            return (translationBundle && translationBundle.strings && translationBundle.strings[key]) || fallback;
+          }
+
+          function renderBanner(lang) {
+            var banner = document.getElementById('sb-cookie-banner');
+            if (!banner || localStorage.getItem('_ac_consent')) return;
+
+            var rtlLanguages = ["ur", "ks", "sd"];
+            banner.dir = rtlLanguages.includes(lang) ? "rtl" : "ltr";
+            banner.style.textAlign = rtlLanguages.includes(lang) ? "right" : "left";
+
+            banner.innerHTML = `
+              <div class="sb-cookie-banner-inner">
+                <div class="sb-cookie-text">
+                  <h4>${t("title", "We respect your privacy")}</h4>
+                  <p>${t("message", "We use cookies to improve your experience. Essential cookies are always active.")}</p>
+                </div>
+                <div class="sb-cookie-actions">
+                  <button class="sb-btn sb-btn--primary" id="cookie-accept-all">${t("accept_all", "Accept All")}</button>
+                  <button class="sb-btn sb-btn--outline" id="cookie-reject-all">${t("reject_all", "Reject All")}</button>
+                </div>
+              </div>
+            `;
+
+            banner.classList.add('visible');
+
+            document.getElementById('cookie-accept-all').addEventListener('click', function () {
+              saveConsent(['STRICTLY_NECESSARY', 'FUNCTIONAL', 'ANALYTICS', 'MARKETING'], 'BANNER_ACCEPT_ALL', []);
+            });
+            document.getElementById('cookie-reject-all').addEventListener('click', function () {
+              saveConsent(['STRICTLY_NECESSARY'], 'BANNER_REJECT_ALL', ['FUNCTIONAL', 'ANALYTICS', 'MARKETING']);
+            });
+          }
+
+          function saveConsent(accepted, method, rejected) {
+            localStorage.setItem('_ac_consent', JSON.stringify({ accepted: accepted }));
+            localStorage.setItem('_ac_banner_version', activeVersion);
+
+            // Update GCM v2 settings
+            gtag('consent', 'update', {
+              ad_storage: accepted.includes('MARKETING') ? 'granted' : 'denied',
+              ad_user_data: accepted.includes('MARKETING') ? 'granted' : 'denied',
+              ad_personalization: accepted.includes('MARKETING') ? 'granted' : 'denied',
+              analytics_storage: accepted.includes('ANALYTICS') ? 'granted' : 'denied',
+              functionality_storage: accepted.includes('FUNCTIONAL') ? 'granted' : 'denied',
+              security_storage: 'granted'
+            });
+
+            var payload = {
+              data_principal_id: localStorage.getItem('_ac_visitor_id'),
+              domain: domain,
+              categories_accepted: accepted,
+              categories_rejected: rejected,
+              consent_method: method,
+              geo_jurisdiction: "IN",
+              user_agent: navigator.userAgent
+            };
+
+            // Post details to Proxy Registry
+            fetch('/api/consent/cookies', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            document.getElementById('sb-cookie-banner').classList.remove('visible');
+          }
+
+          window.addEventListener('DOMContentLoaded', checkVersionAndLoad);
+        })();
+        </script>
     </footer>
 </body>
 </html>
