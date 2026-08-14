@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Checkout')}"></head>
+<body>
+    <div th:replace="~{fragments/layout :: header}"></div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="container py-5">
+        <h1 class="page-title mb-4"><i class="fa-solid fa-credit-card"></i> Secure Checkout</h1>
+
+        <div class="checkout-layout">
+            <!-- Left Side: Shipping & Payment Form -->
+            <div class="checkout-form-panel">
+                <form th:action="@{/checkout}" method="post" class="needs-validation">
+                    <!-- Shipping Address section -->
+                    <div class="form-section mb-4">
+                        <h2><span class="step-num">1</span> Shipping Information</h2>
+                        <hr/>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" required class="form-control" placeholder="John Doe" />
+                            </div>
+                        </div>
+
+                        <div class="form-row mt-3">
+                            <div class="form-group col-12">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required class="form-control" placeholder="john.doe@example.com" />
+                            </div>
+                        </div>
+
+                        <div class="form-row mt-3">
+                            <div class="form-group col-12">
+                                <label for="address">Address</label>
+                                <input type="text" id="address" name="address" required class="form-control" placeholder="123 Main St, Apt 4B" />
+                            </div>
+                        </div>
+
+                        <div class="form-row grid-3 mt-3">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" required class="form-control" placeholder="New York" />
+                            </div>
+                            <div class="form-group">
+                                <label for="zipCode">Zip/Postal Code</label>
+                                <input type="text" id="zipCode" name="zipCode" required class="form-control" placeholder="10001" />
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" id="country" name="country" required class="form-control" placeholder="United States" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information section -->
+                    <div class="form-section mb-4">
+                        <h2><span class="step-num">2</span> Payment Details</h2>
+                        <hr/>
+                        <div class="sim-notice mb-3">
+                            <i class="fa-solid fa-circle-info"></i> This is a simulation. Do not enter real credit card numbers!
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="cardName">Name on Card</label>
+                                <input type="text" id="cardName" name="cardName" required class="form-control" placeholder="John Doe" />
+                            </div>
+                        </div>
+
+                        <div class="form-row mt-3">
+                            <div class="form-group col-12">
+                                <label for="cardNumber">Card Number</label>
+                                <div class="input-icon-wrapper">
+                                    <input type="text" id="cardNumber" name="cardNumber" required class="form-control" placeholder="4111 2222 3333 4444" pattern="^[0-9\s]{12,19}$" title="Enter a valid card number" />
+                                    <i class="fa-regular fa-credit-card input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row grid-2 mt-3">
+                            <div class="form-group">
+                                <label for="cardExp">Expiration Date</label>
+                                <input type="text" id="cardExp" name="cardExp" required class="form-control" placeholder="MM/YY" pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$" title="Format: MM/YY" />
+                            </div>
+                            <div class="form-group">
+                                <label for="cardCvv">CVV Code</label>
+                                <input type="password" id="cardCvv" name="cardCvv" required class="form-control" placeholder="123" pattern="^[0-9]{3,4}$" title="3 or 4 digit code" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-large w-100 mt-4">
+                        <i class="fa-solid fa-lock"></i> Submit Payment & Order
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Side: Order Review -->
+            <div class="checkout-review-panel">
+                <div class="card summary-card">
+                    <h3>Review Your Order</h3>
+                    <hr/>
+                    <div class="review-items-list mb-3">
+                        <div class="review-item flex-between" th:each="item : ${cart.items}">
+                            <div class="review-item-info">
+                                <span class="review-item-name" th:text="${item.product.name}">Product Name</span>
+                                <span class="review-item-qty" th:text="' x ' + ${item.quantity}"> x 1</span>
+                            </div>
+                            <span class="review-item-subtotal" th:text="'$' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div class="summary-row flex-between">
+                        <span>Subtotal:</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.subtotal, 1, 2)}">$0.00</span>
+                    </div>
+
+                    <div class="summary-row flex-between discount" th:if="${cart.discountAmount > 0}">
+                        <span>Promo Discount (<span th:text="${cart.couponCode}">CODE</span>):</span>
+                        <span th:text="'-$' + ${#numbers.formatDecimal(cart.discountAmount, 1, 2)}">-$0.00</span>
+                    </div>
+
+                    <div class="summary-row flex-between">
+                        <span>Shipping Cost:</span>
+                        <span th:text="${cart.shippingCost > 0 ? '$' + #numbers.formatDecimal(cart.shippingCost, 1, 2) : 'FREE'}">$0.00</span>
+                    </div>
+                    
+                    <hr/>
+                    
+                    <div class="summary-row flex-between total-row">
+                        <span>Total Due:</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.total, 1, 2)}">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

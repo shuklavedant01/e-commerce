@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Your Cart')}"></head>
+<body>
+    <div th:replace="~{fragments/layout :: header}"></div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="container py-5">
+        <h1 class="page-title mb-4"><i class="fa-solid fa-cart-shopping"></i> Shopping Cart</h1>
+
+        <div class="cart-layout" th:if="${not #lists.isEmpty(cart.items)}">
+            <!-- Left Side: Items -->
+            <div class="cart-items-panel">
+                <div class="cart-item" th:each="item : ${cart.items}">
+                    <img th:src="${item.product.imageUrl}" th:alt="${item.product.name}" class="cart-item-image" />
+                    
+                    <div class="cart-item-details">
+                        <h3 class="cart-item-title">
+                            <a th:href="@{/product/{id}(id=${item.product.id})}" th:text="${item.product.name}">Product Name</a>
+                        </h3>
+                        <span class="cart-item-category" th:text="${item.product.category}">Category</span>
+                        <div class="cart-item-price" th:text="'$' + ${#numbers.formatDecimal(item.product.price, 1, 2)}">$99.99</div>
+                    </div>
+
+                    <!-- Quantity Update Form -->
+                    <div class="cart-item-actions">
+                        <form th:action="@{/cart/update}" method="post" class="quantity-update-form">
+                            <input type="hidden" name="productId" th:value="${item.product.id}" />
+                            <div class="input-group">
+                                <input type="number" name="quantity" th:value="${item.quantity}" min="1" th:max="${item.product.stock}" class="form-control quantity-field" />
+                                <button type="submit" class="btn btn-secondary btn-sm" title="Update Quantity">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <form th:action="@{/cart/remove}" method="post" class="item-remove-form">
+                            <input type="hidden" name="productId" th:value="${item.product.id}" />
+                            <button type="submit" class="btn-text-danger" title="Remove Item">
+                                <i class="fa-solid fa-trash-can"></i> Remove
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="cart-item-subtotal" th:text="'$' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">$99.99</div>
+                </div>
+            </div>
+
+            <!-- Right Side: Summary and Coupon -->
+            <div class="cart-summary-panel">
+                <!-- Coupon Form -->
+                <div class="card summary-card mb-4">
+                    <h3>Have a Promo Code?</h3>
+                    <form th:action="@{/cart/coupon}" method="post" class="coupon-form mt-2">
+                        <div class="input-group">
+                            <input type="text" name="couponCode" placeholder="Try WELCOME10 or FREESHIP" th:value="${cart.couponCode}" class="form-control" />
+                            <button type="submit" class="btn btn-secondary">Apply</button>
+                        </div>
+                        <p class="coupon-hint mt-2">
+                            * Use code <strong class="badge">WELCOME10</strong> for 10% off.<br/>
+                            * Use code <strong class="badge">FREESHIP</strong> for free shipping.
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Order Summary Card -->
+                <div class="card summary-card">
+                    <h3>Order Summary</h3>
+                    <hr/>
+                    <div class="summary-row flex-between">
+                        <span>Subtotal:</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.subtotal, 1, 2)}">$0.00</span>
+                    </div>
+                    
+                    <div class="summary-row flex-between discount" th:if="${cart.discountAmount > 0}">
+                        <span>Promo Code (<span th:text="${cart.couponCode}">CODE</span>):</span>
+                        <span th:text="'-$' + ${#numbers.formatDecimal(cart.discountAmount, 1, 2)}">-$0.00</span>
+                    </div>
+
+                    <div class="summary-row flex-between">
+                        <span>Estimated Shipping:</span>
+                        <span th:text="${cart.shippingCost > 0 ? '$' + #numbers.formatDecimal(cart.shippingCost, 1, 2) : 'FREE'}">$0.00</span>
+                    </div>
+                    <hr/>
+                    <div class="summary-row flex-between total-row">
+                        <span>Estimated Total:</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.total, 1, 2)}">$0.00</span>
+                    </div>
+
+                    <a th:href="@{/checkout}" class="btn btn-primary btn-large w-100 mt-4 text-center">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state py-5" th:if="${#lists.isEmpty(cart.items)}">
+            <i class="fa-solid fa-cart-flat-bed empty-icon"></i>
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added anything to your cart yet. Explore our premium catalog to get started!</p>
+            <a th:href="@{/}" class="btn btn-primary mt-4">Go to Shop</a>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

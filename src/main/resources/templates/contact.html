@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Contact Us')}"></head>
+<body>
+    <div th:replace="~{fragments/layout :: header}"></div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="container py-5">
+        <h1 class="page-title mb-4 text-center">Get In Touch</h1>
+        <p class="subtitle text-center mb-5 max-width-600 mx-auto">Have questions about our products, orders, or need support? Drop us a message and our simulated team will get back to you!</p>
+
+        <div class="contact-layout">
+            <!-- Left Side: Office & Support Info -->
+            <div class="contact-info-panel">
+                <div class="card info-card mb-4">
+                    <h3><i class="fa-solid fa-headset icon-accent"></i> Customer Support</h3>
+                    <p>Our dedicated support line is simulated to assist you 24/7 with any orders or inquiries.</p>
+                    <p class="contact-detail-line"><i class="fa-solid fa-phone"></i> +1 (800) 555-0199</p>
+                    <p class="contact-detail-line"><i class="fa-solid fa-envelope"></i> support@swiftshop.demo</p>
+                </div>
+
+                <div class="card info-card">
+                    <h3><i class="fa-solid fa-building-user icon-accent"></i> Corporate HQ</h3>
+                    <p>SwiftShop Inc. (Simulation HQ)</p>
+                    <p class="contact-detail-line"><i class="fa-solid fa-location-dot"></i> 456 Innovation Way, Suite 100, Silicon Valley, CA 94025</p>
+                </div>
+            </div>
+
+            <!-- Right Side: Contact Form -->
+            <div class="contact-form-panel">
+                <div class="card form-card">
+                    <h3>Send Us a Message</h3>
+                    <hr class="mb-4"/>
+                    
+                    <form th:action="@{/contact}" th:object="${contactMessage}" method="post">
+                        <div class="form-group mb-3">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" th:field="*{name}" required class="form-control" placeholder="Jane Doe" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" th:field="*{email}" required class="form-control" placeholder="jane.doe@example.com" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" th:field="*{subject}" required class="form-control" placeholder="Product Inquiry / Order Issue" />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="message">Message</label>
+                            <textarea id="message" th:field="*{message}" rows="5" required class="form-control" placeholder="Write your message here..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

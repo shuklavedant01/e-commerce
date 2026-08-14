@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - SwiftShop'"></title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar Fragment -->
+    <header th:fragment="header" class="header">
+        <nav class="navbar container">
+            <a th:href="@{/}" class="logo">
+                <i class="fa-solid fa-bag-shopping"></i> Swift<span>Shop</span>
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="nav-link">Shop</a></li>
+                <li><a th:href="@{/contact}" class="nav-link">Contact Us</a></li>
+                <li><a th:href="@{/admin}" class="nav-link">Admin Portal</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a th:href="@{/cart}" class="cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-badge" th:if="${cartItemCount > 0}" th:text="${cartItemCount}">0</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Alert / Messages Fragment -->
+    <div th:fragment="alerts" class="container alerts-container">
+        <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+        <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+        <div class="alert alert-info" th:if="${infoMessage}" th:text="${infoMessage}"></div>
+    </div>
+
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <a th:href="@{/}" class="logo">
+                    <i class="fa-solid fa-bag-shopping"></i> Swift<span>Shop</span>
+                </a>
+                <p>Premium, high-performance simulation e-commerce platform built on Java Spring Boot and deployed via Vercel.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a th:href="@{/}">Shop Catalog</a></li>
+                    <li><a th:href="@{/cart}">Shopping Cart</a></li>
+                    <li><a th:href="@{/contact}">Inquiries</a></li>
+                    <li><a th:href="@{/admin}">Management</a></li>
+                </ul>
+            </div>
+            <div class="footer-info">
+                <h4>Platform Status</h4>
+                <p><i class="fa-solid fa-server status-dot"></i> Live Serverless Container</p>
+                <p><i class="fa-solid fa-database"></i> H2 In-Memory Database</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 SwiftShop. Pair-programmed with Antigravity AI.</p>
+        </div>
+    </footer>
+</body>
+</html>
