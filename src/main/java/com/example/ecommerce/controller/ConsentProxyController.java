@@ -19,6 +19,10 @@ public class ConsentProxyController {
             return ResponseEntity.status(response.getStatusCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response.getBody());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e.getResponseBodyAsString());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
@@ -33,6 +37,10 @@ public class ConsentProxyController {
             return ResponseEntity.status(response.getStatusCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response.getBody());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e.getResponseBodyAsString());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
@@ -51,6 +59,10 @@ public class ConsentProxyController {
             return ResponseEntity.status(response.getStatusCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response.getBody());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e.getResponseBodyAsString());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
@@ -74,6 +86,10 @@ public class ConsentProxyController {
             return ResponseEntity.status(response.getStatusCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response.getBody());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e.getResponseBodyAsString());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"Failed to proxy consent capture.\", \"message\": \"" + e.getMessage() + "\"}");
