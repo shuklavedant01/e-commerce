@@ -187,6 +187,7 @@
                 const payload = {
                     consent_method: "EXPLICIT",
                     email: email,
+                    data_principal_email: email,
                     geo_jurisdiction: "IN",
                     language: "en",
                     legal_basis: "CONSENT",
@@ -194,7 +195,8 @@
                     purpose: purposeName,
                     purpose_category: category,
                     purpose_id: purposeId,
-                    visitor_id: visitorId
+                    visitor_id: visitorId,
+                    data_principal_id: visitorId
                 };
 
                 const res = await fetch("/api/consent/capture", {

@@ -84,6 +84,7 @@
         const payload = {
             consent_method: "EXPLICIT",
             email: email,
+            data_principal_email: email,
             geo_jurisdiction: "IN",
             language: "en",
             legal_basis: "CONSENT",
@@ -91,7 +92,8 @@
             purpose: "Contact / sales follow-up, /contact form",
             purpose_category: "MARKETING",
             purpose_id: "PUR-20260714083036506173",
-            visitor_id: visitorId
+            visitor_id: visitorId,
+            data_principal_id: visitorId
         };
 
         try {
